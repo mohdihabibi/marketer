@@ -17,8 +17,8 @@ from datetime import datetime
 # =============================================================================
 
 # Set your API keys
-OPENAI_API_KEY = "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"
-PINECONE_API_KEY = "pcsk_5P4Y18_HdB9GEWSDJ4GsC5dmu3WaKAseq5gPYp61FTQw8kw5L83P7sqEbnNkdCRQNrkhS9"
+OPENAI_API_KEY = st.secrets["openai"]["api_key"]
+PINECONE_API_KEY = st.secrets["pinecone"]["api_key"]
 PINECONE_ENVIRONMENT = "your_pinecone_environment"  # e.g., "us-west1-gcp"
 
 # Initialize APIs

@@ -149,32 +149,35 @@ class EmailGenerator:
             # Create a detailed prompt for product image generation
             product_name = product_info.get('product_name', 'product')
             description = product_info.get('product_description', '')
-            campaign_type = product_info.get('campaign_type', 'announcement')
+            custom_prompt = product_info.get('custom_prompt', '')
             
-            # Analyze website content for visual cues
-            website_info = product_info.get('website_info', {})
-            website_title = website_info.get('title', '')
-            
-            # Create targeted image generation prompt
-            product_lower = (product_name + description).lower()
-            
-            if any(word in product_lower for word in ['app', 'mobile', 'software', 'platform', 'saas']):
-                if 'mobile' in product_lower or 'app' in product_lower:
-                    image_prompt = f"Modern smartphone mockup displaying {product_name} mobile app interface, clean UI design, professional product photography, white background, high quality commercial style"
-                else:
-                    image_prompt = f"Modern laptop displaying {product_name} web application dashboard, clean professional interface, office environment, commercial photography style"
-            elif any(word in product_lower for word in ['physical', 'device', 'gadget', 'tool', 'hardware']):
-                image_prompt = f"Professional product photography of {product_name}, clean white studio background, perfect lighting, commercial product shot, high resolution"
-            elif any(word in product_lower for word in ['service', 'consulting', 'business']):
-                image_prompt = f"Modern professional graphic representing {product_name} service, clean minimal design, business style, commercial quality"
+            # Use custom prompt if provided, otherwise auto-generate
+            if custom_prompt.strip():
+                image_prompt = custom_prompt.strip()
             else:
-                # Generic product image
-                image_prompt = f"Professional marketing visual for {product_name}, modern clean aesthetic, {description[:50]}, commercial photography style, high quality"
+                # Analyze website content for visual cues
+                website_info = product_info.get('website_info', {})
+                
+                # Create targeted image generation prompt
+                product_lower = (product_name + description).lower()
+                
+                if any(word in product_lower for word in ['app', 'mobile', 'software', 'platform', 'saas']):
+                    if 'mobile' in product_lower or 'app' in product_lower:
+                        image_prompt = f"Modern smartphone mockup displaying {product_name} mobile app interface, clean UI design, professional product photography, white background, high quality commercial style"
+                    else:
+                        image_prompt = f"Modern laptop displaying {product_name} web application dashboard, clean professional interface, office environment, commercial photography style"
+                elif any(word in product_lower for word in ['physical', 'device', 'gadget', 'tool', 'hardware']):
+                    image_prompt = f"Professional product photography of {product_name}, clean white studio background, perfect lighting, commercial product shot, high resolution"
+                elif any(word in product_lower for word in ['service', 'consulting', 'business']):
+                    image_prompt = f"Modern professional graphic representing {product_name} service, clean minimal design, business style, commercial quality"
+                else:
+                    # Generic product image
+                    image_prompt = f"Professional marketing visual for {product_name}, modern clean aesthetic, {description[:50]}, commercial photography style, high quality"
             
             # Add safety and quality modifiers
             image_prompt = f"{image_prompt}, professional, clean, modern, high quality, commercial grade"
             
-            st.info(f"🎨 Generating image with prompt: {image_prompt[:100]}...")
+            st.info(f"🎨 Generating image: {image_prompt[:80]}...")
             
             # Generate image with DALL-E 3
             try:
@@ -187,6 +190,7 @@ class EmailGenerator:
                     n=1
                 )
                 image_url = response.data[0].url
+                return image_url
             except Exception as api_error:
                 # Fallback for older API versions
                 try:
@@ -196,11 +200,10 @@ class EmailGenerator:
                         size="1024x1024"
                     )
                     image_url = response['data'][0]['url']
+                    return image_url
                 except Exception as fallback_error:
                     st.error(f"Image generation failed: {fallback_error}")
                     return None
-            
-            return image_url
             
         except Exception as e:
             st.error(f"Error generating product image: {str(e)}")
@@ -457,6 +460,350 @@ class EmailGenerator:
             
             # Close container
             st.markdown("</div>", unsafe_allow_html=True)
+    
+    def create_basic_preview(self, email_content: Dict, image_url: Optional[str] = None) -> None:
+        """Create the most basic, guaranteed-to-work preview using only core Streamlit components"""
+        
+        subject = email_content.get('subject', '')
+        body = email_content.get('body', '')
+        cta = email_content.get('cta', 'Learn More')
+        
+        # Use only basic Streamlit components - no custom styling
+        st.markdown("---")
+        
+        # Subject
+        st.subheader("📧 EMAIL SUBJECT:")
+        st.write(f"**{subject}**")
+        
+        st.markdown("---")
+        
+        # Image
+        if image_url:
+            st.subheader("🖼️ EMAIL IMAGE:")
+            try:
+                st.image(image_url, caption="Email Image", width=400)
+            except Exception as e:
+                st.error(f"Could not display image: {e}")
+                st.text(f"Image URL: {image_url}")
+        else:
+            st.info("No image included in this email")
+        
+        st.markdown("---")
+        
+        # Body
+        st.subheader("📝 EMAIL CONTENT:")
+        st.write(body)
+        
+        st.markdown("---")
+        
+        # CTA
+        st.subheader("🎯 CALL TO ACTION:")
+        st.button(cta, disabled=True, use_container_width=True, type="primary")
+        
+        st.markdown("---")
+        
+        # Footer
+        st.caption("Best regards, Your Team")
+        st.caption("You received this email because you subscribed to our updates.")
+    
+    def create_info_summary(self, email_content: Dict, image_url: Optional[str] = None) -> None:
+        """Create a simple info summary that shows email details"""
+        
+        subject = email_content.get('subject', '')
+        body = email_content.get('body', '')
+        cta = email_content.get('cta', 'Learn More')
+        
+        # Basic info display
+        st.info("📊 EMAIL SUMMARY")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**Subject Line:**")
+            st.code(subject)
+            
+            st.write("**Call to Action:**")
+            st.code(cta)
+            
+        with col2:
+            st.write("**Statistics:**")
+            st.write(f"• Subject Length: {len(subject)} characters")
+            st.write(f"• Body Word Count: {len(body.split())} words")
+            st.write(f"• Has Image: {'Yes' if image_url else 'No'}")
+        
+        st.write("**Email Body Preview:**")
+        # Show first 200 characters
+        preview_text = body[:200] + "..." if len(body) > 200 else body
+        st.text_area("", value=preview_text, height=100, disabled=True)
+        
+        if image_url:
+            st.write("**Image Preview:**")
+            try:
+                st.image(image_url, width=200)
+            except:
+                st.error("Could not display image")
+    
+    def create_downloadable_html(self, email_content: Dict, image_url: Optional[str] = None) -> str:
+        """Create a complete HTML email for download that will work in browsers"""
+        
+        subject = email_content.get('subject', '')
+        body = email_content.get('body', '').replace('\n', '<br>')
+        cta = email_content.get('cta', 'Learn More')
+        
+        # Process body for better HTML formatting
+        if '•' in body or '*' in body or '-' in body:
+            lines = body.split('<br>')
+            formatted_lines = []
+            in_list = False
+            
+            for line in lines:
+                line = line.strip()
+                if line.startswith(('•', '*', '-')) and len(line) > 2:
+                    if not in_list:
+                        formatted_lines.append('<ul style="margin: 15px 0; padding-left: 25px;">')
+                        in_list = True
+                    clean_line = line[1:].strip()
+                    formatted_lines.append(f'<li style="margin: 8px 0;">{clean_line}</li>')
+                else:
+                    if in_list:
+                        formatted_lines.append('</ul>')
+                        in_list = False
+                    if line:
+                        formatted_lines.append(f'<p style="margin: 15px 0;">{line}</p>')
+            
+            if in_list:
+                formatted_lines.append('</ul>')
+            
+            body = ''.join(formatted_lines)
+        else:
+            # Wrap paragraphs
+            body = f'<p style="margin: 15px 0; line-height: 1.6;">{body}</p>'
+        
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{subject}</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }}
+        .email-container {{
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }}
+        .content {{
+            padding: 40px 30px;
+        }}
+        .image-container {{
+            text-align: center;
+            margin: 30px 0;
+        }}
+        .image-container img {{
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }}
+        .body-content {{
+            font-size: 16px;
+            color: #444;
+            margin: 25px 0;
+        }}
+        .cta-container {{
+            text-align: center;
+            margin: 40px 0;
+        }}
+        .cta-button {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 36px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            display: inline-block;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s ease;
+        }}
+        .cta-button:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }}
+        .footer {{
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }}
+        .footer p {{
+            margin: 0 0 10px 0;
+            color: #6c757d;
+            font-size: 14px;
+        }}
+        .footer .unsubscribe {{
+            font-size: 12px;
+            color: #999;
+        }}
+        @media only screen and (max-width: 600px) {{
+            .email-container {{
+                margin: 10px;
+                border-radius: 8px;
+            }}
+            .header, .content, .footer {{
+                padding: 25px 20px;
+            }}
+            .header h1 {{
+                font-size: 24px;
+            }}
+            .cta-button {{
+                padding: 15px 30px;
+                font-size: 15px;
+            }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{subject}</h1>
+        </div>
+        
+        <div class="content">
+            {f'<div class="image-container"><img src="{image_url}" alt="Product Image"></div>' if image_url else ''}
+            
+            <div class="body-content">
+                {body}
+            </div>
+            
+            <div class="cta-container">
+                <a href="#" class="cta-button">{cta}</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Best regards,</strong><br>Your Team</p>
+            <p class="unsubscribe">You received this email because you subscribed to our updates.<br>
+            <a href="#" style="color: #999;">Unsubscribe</a> | <a href="#" style="color: #999;">Update Preferences</a></p>
+        </div>
+    </div>
+</body>
+</html>"""
+        
+        return html
+    
+    def create_email_summary_card(self, email_content: Dict, image_url: Optional[str] = None) -> None:
+        """Create a visual summary card of the email content"""
+        
+        subject = email_content.get('subject', '')
+        body = email_content.get('body', '')
+        cta = email_content.get('cta', 'Learn More')
+        
+        # Create a visual card showing email structure
+        st.markdown("""
+        <div style="
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8eeff 100%);
+        ">
+        """, unsafe_allow_html=True)
+        
+        # Subject preview
+        st.markdown(f"""
+        <div style="
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        ">
+            <h4 style="margin: 0; color: #333; font-size: 16px;">📧 Subject Line:</h4>
+            <p style="margin: 5px 0 0 0; font-weight: bold; color: #667eea;">{subject}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Image preview if exists
+        if image_url:
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                try:
+                    st.image(image_url, width=120, caption="Email Image")
+                except:
+                    st.error("Image preview failed")
+            with col2:
+                st.markdown("""
+                <div style="
+                    background: white;
+                    border-radius: 8px;
+                    padding: 15px;
+                    border-left: 4px solid #28a745;
+                ">
+                    <h4 style="margin: 0; color: #333; font-size: 16px;">🖼️ Visual Content:</h4>
+                    <p style="margin: 5px 0 0 0; color: #28a745;">✅ Product image included</p>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        # Body preview
+        body_preview = body[:150] + "..." if len(body) > 150 else body
+        st.markdown(f"""
+        <div style="
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #fd7e14;
+        ">
+            <h4 style="margin: 0; color: #333; font-size: 16px;">📝 Email Content:</h4>
+            <p style="margin: 5px 0 0 0; color: #666; line-height: 1.5;">{body_preview}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # CTA preview
+        st.markdown(f"""
+        <div style="
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            text-align: center;
+        ">
+            <h4 style="margin: 0; color: #333; font-size: 16px;">🎯 Call to Action:</h4>
+            <div style="margin: 10px 0;">
+                <span style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    font-weight: bold;
+                    display: inline-block;
+                ">{cta}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
         
     def scrape_website(self, url: str) -> Dict[str, str]:
         """Extract key information from a website with better error handling"""
@@ -740,7 +1087,7 @@ CTA: [Strong action-oriented call-to-action]
             }
 
 # =============================================================================
-# STREAMLIT UI (Enhanced)
+# STREAMLIT UI (Enhanced with Fixed HTML Preview)
 # =============================================================================
 
 def main():
@@ -808,6 +1155,11 @@ def main():
     .stButton > button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .preview-iframe {
+        border: 2px solid #667eea;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -915,6 +1267,155 @@ def main():
                     else:
                         st.error("Failed to analyze website. Please check the URL.")
         
+        # Image Selection Section (NEW)
+        with st.expander("🖼️ Email Image Options", expanded=True):
+            image_option = st.radio(
+                "Choose image type for your email:",
+                ["No Image", "Generate AI Image", "Use Website Images", "Upload Custom Image"],
+                help="Select how to add visual content to your email"
+            )
+            
+            # Initialize session state for images
+            if 'selected_image_url' not in st.session_state:
+                st.session_state.selected_image_url = None
+            if 'generated_image_url' not in st.session_state:
+                st.session_state.generated_image_url = None
+            if 'website_images' not in st.session_state:
+                st.session_state.website_images = []
+            
+            # Handle different image options
+            if image_option == "Generate AI Image":
+                if OPENAI_API_KEY == "your_openai_key_here":
+                    st.error("❌ OpenAI API key required for image generation")
+                else:
+                    # Custom prompt option
+                    custom_prompt = st.text_area(
+                        "Custom Image Prompt (Optional)",
+                        placeholder="e.g., Modern smartphone displaying app interface...",
+                        height=80,
+                        help="Leave empty to auto-generate based on your product description"
+                    )
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("🎨 Generate Image", type="secondary"):
+                            if product_name and product_description:
+                                with st.spinner("🎨 Generating AI image..."):
+                                    # Prepare user input for image generation
+                                    temp_user_input = {
+                                        'product_name': product_name,
+                                        'product_description': product_description,
+                                        'custom_prompt': custom_prompt,
+                                        'website_info': st.session_state.get('website_info', {})
+                                    }
+                                    generated_url = generator.generate_product_image(temp_user_input)
+                                    if generated_url:
+                                        st.session_state.generated_image_url = generated_url
+                                        st.session_state.selected_image_url = generated_url
+                                        st.success("✅ Image generated!")
+                                    else:
+                                        st.error("❌ Image generation failed")
+                            else:
+                                st.warning("⚠️ Please fill product name and description first")
+                    
+                    with col2:
+                        if st.session_state.generated_image_url:
+                            if st.button("🗑️ Clear Image"):
+                                st.session_state.generated_image_url = None
+                                st.session_state.selected_image_url = None
+                                st.rerun()
+                    
+                    # Show generated image
+                    if st.session_state.generated_image_url:
+                        st.image(st.session_state.generated_image_url, caption="Generated AI Image", width=250)
+                        
+            elif image_option == "Use Website Images":
+                if website_url:
+                    if st.button("🔍 Find Website Images"):
+                        with st.spinner("🔍 Extracting images from website..."):
+                            website_images = generator.extract_product_images(website_url)
+                            st.session_state.website_images = website_images
+                            if website_images:
+                                st.success(f"✅ Found {len(website_images)} images")
+                            else:
+                                st.warning("❌ No suitable images found")
+                    
+                    # Display found images for selection
+                    if st.session_state.website_images:
+                        st.write("**Select an image:**")
+                        
+                        # Create columns for image display
+                        num_images = len(st.session_state.website_images[:6])  # Limit to 6 images
+                        cols = st.columns(min(3, num_images))
+                        
+                        for i, img_url in enumerate(st.session_state.website_images[:6]):
+                            with cols[i % 3]:
+                                try:
+                                    st.image(img_url, caption=f"Image {i+1}", width=100)
+                                    if st.button(f"Select", key=f"select_website_img_{i}"):
+                                        st.session_state.selected_image_url = img_url
+                                        st.success(f"✅ Selected Image {i+1}")
+                                        st.rerun()
+                                except Exception as e:
+                                    st.error(f"Failed to load image {i+1}")
+                        
+                        # Show selected image
+                        if st.session_state.selected_image_url in st.session_state.website_images:
+                            st.write("**Selected Image:**")
+                            st.image(st.session_state.selected_image_url, width=200)
+                            
+                else:
+                    st.info("💡 Please enter a website URL first in the Website Analysis section")
+                    
+            elif image_option == "Upload Custom Image":
+                uploaded_file = st.file_uploader(
+                    "Upload Image",
+                    type=['png', 'jpg', 'jpeg', 'gif'],
+                    help="Upload your own image for the email"
+                )
+                
+                if uploaded_file is not None:
+                    # Convert uploaded file to base64 for display
+                    try:
+                        from PIL import Image
+                        import base64
+                        from io import BytesIO
+                        
+                        # Open and process the image
+                        image = Image.open(uploaded_file)
+                        
+                        # Convert to RGB if necessary
+                        if image.mode in ('RGBA', 'LA', 'P'):
+                            image = image.convert('RGB')
+                        
+                        # Resize if too large
+                        max_size = (800, 600)
+                        image.thumbnail(max_size, Image.Resampling.LANCZOS)
+                        
+                        # Convert to base64
+                        buffer = BytesIO()
+                        image.save(buffer, format='JPEG', quality=85)
+                        img_data = buffer.getvalue()
+                        img_base64 = base64.b64encode(img_data).decode()
+                        
+                        # Create data URL
+                        data_url = f"data:image/jpeg;base64,{img_base64}"
+                        st.session_state.selected_image_url = data_url
+                        
+                        # Display uploaded image
+                        st.image(image, caption="Uploaded Image", width=250)
+                        st.success("✅ Image uploaded successfully!")
+                        
+                    except Exception as e:
+                        st.error(f"❌ Error processing image: {e}")
+                        
+            # Show current selection status
+            if image_option != "No Image":
+                if st.session_state.selected_image_url:
+                    st.success(f"✅ Image ready: {image_option}")
+                else:
+                    st.info(f"ℹ️ No image selected yet for: {image_option}")
+        
         # Generate button
         st.markdown("---")
         generate_button = st.button(
@@ -965,56 +1466,8 @@ def main():
         with col1:
             st.header("📧 Generated Email")
             
-            # Image generation options
-            status_text.text("🎨 Setting up image options...")
-            progress_bar.progress(80)
-            
-            image_option = st.radio(
-                "Product Image Options:",
-                ["No Image", "Generate AI Image", "Use Website Images"],
-                horizontal=True,
-                help="Choose how to add visual content to your email"
-            )
-            
-            image_url = None
-            
-            if image_option == "Generate AI Image":
-                if OPENAI_API_KEY == "your_openai_key_here":
-                    st.error("❌ OpenAI API key required for image generation")
-                else:
-                    with st.spinner("🎨 Generating custom product image..."):
-                        image_url = generator.generate_product_image(user_input)
-                        if image_url:
-                            st.success("✅ Custom image generated!")
-                            st.image(image_url, caption="Generated product image", width=300)
-                        else:
-                            st.error("Failed to generate image. Continuing without image.")
-                        
-            elif image_option == "Use Website Images" and website_url:
-                with st.spinner("🔍 Finding product images on website..."):
-                    website_images = generator.extract_product_images(website_url)
-                    if website_images:
-                        st.success(f"✅ Found {len(website_images)} images")
-                        
-                        # Display images for selection
-                        cols = st.columns(min(3, len(website_images)))
-                        selected_idx = 0
-                        
-                        for i, img_url in enumerate(website_images[:3]):
-                            with cols[i % 3]:
-                                try:
-                                    st.image(img_url, caption=f"Image {i+1}", width=150)
-                                    if st.button(f"Select #{i+1}", key=f"select_img_{i}"):
-                                        selected_idx = i
-                                        image_url = img_url
-                                except:
-                                    st.error(f"Failed to load image {i+1}")
-                        
-                        if not image_url and website_images:
-                            image_url = website_images[0]  # Default to first image
-                            
-                    else:
-                        st.warning("No suitable images found on website")
+            # Get the selected image URL from session state
+            image_url = st.session_state.get('selected_image_url', None)
             
             progress_bar.progress(90)
             status_text.text("📧 Finalizing email...")
@@ -1041,9 +1494,22 @@ def main():
                 st.subheader("🖼️ Product Image")
                 img_col1, img_col2 = st.columns([1, 2])
                 with img_col1:
-                    st.image(image_url, caption="Email image", width=200)
+                    try:
+                        st.image(image_url, caption="Email image", width=200)
+                    except Exception as e:
+                        st.error(f"Could not display image: {e}")
                 with img_col2:
                     st.info("✨ This image will be included in your email to increase engagement and visual appeal.")
+                    
+                    # Show image type
+                    if image_url.startswith('data:'):
+                        st.write("📸 **Type:** Uploaded custom image")
+                    elif 'dalle' in image_url or 'openai' in image_url:
+                        st.write("🎨 **Type:** AI-generated image")
+                    else:
+                        st.write("🌐 **Type:** Website image")
+            else:
+                st.info("ℹ️ No image selected. Email will be text-only.")
             
             # Email body
             st.subheader("📝 Email Body")
@@ -1073,133 +1539,247 @@ def main():
             # Email preview and actions
             st.markdown("---")
             
-            # HTML email preview
-            preview_option = st.selectbox(
-                "📱 Email Preview Options:",
-                ["No Preview", "Interactive Preview", "HTML Code", "Browser Preview"],
-                help="Choose how to preview your email"
-            )
+            # FIXED PREVIEW SYSTEM - DIRECT DISPLAY
+            st.markdown("---")
+            st.subheader("📧 Email Preview")
             
-            if preview_option != "No Preview":
-                st.subheader("📧 Email Preview")
+            # Show the email data directly first (this should always work)
+            st.write("**📬 Subject Line:**")
+            st.info(generated_email.get('subject', 'No subject found'))
+            
+            st.write("**📝 Email Content:**")
+            st.text_area("Email Body", value=generated_email.get('body', 'No content found'), height=200, disabled=True)
+            
+            st.write("**🎯 Call to Action:**")
+            st.success(generated_email.get('cta', 'No CTA found'))
+            
+            # Image handling
+            st.write("**🖼️ Image Status:**")
+            if image_url:
+                st.info(f"✅ Image included: {image_url[:50]}...")
+                try:
+                    st.image(image_url, caption="Email Image", width=400)
+                except Exception as e:
+                    st.error(f"Could not display image: {e}")
+            else:
+                st.info("📄 No image included (text-only email)")
+            
+            # Divider
+            st.markdown("---")
+            
+            # Email Layout Preview (always show, no button needed)
+            st.write("**📱 Email Layout Preview:**")
+            
+            # Header simulation
+            st.markdown("**📧 EMAIL HEADER:**")
+            st.code(f"From: your-email@company.com\nTo: customer@email.com\nSubject: {generated_email.get('subject', '')}")
+            
+            # Content simulation with better formatting
+            st.markdown("**📄 EMAIL CONTENT:**")
+            body_text = generated_email.get('body', '')
+            
+            # Create email-like display using expander
+            with st.expander("Click to view formatted email content", expanded=True):
+                # Split into paragraphs for better display
+                if '\n\n' in body_text:
+                    paragraphs = body_text.split('\n\n')
+                    for i, paragraph in enumerate(paragraphs):
+                        if paragraph.strip():
+                            st.write(paragraph.strip())
+                            if i < len(paragraphs) - 1:  # Add space between paragraphs except last
+                                st.write("")
+                else:
+                    # If no double line breaks, just show the content
+                    st.write(body_text)
+            
+            # CTA simulation
+            st.markdown("**🎯 CALL-TO-ACTION:**")
+            # Create a visual representation of the button
+            st.markdown(f"""
+            <div style="text-align: center; padding: 10px;">
+                <span style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-weight: bold;
+                    display: inline-block;
+                    text-decoration: none;
+                ">{generated_email.get('cta', 'Learn More')}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Footer simulation
+            st.markdown("**📝 EMAIL FOOTER:**")
+            st.caption("Best regards, Your Team")
+            st.caption("You received this email because you subscribed to our updates.")
+            st.caption("Unsubscribe | Update Preferences")
+            
+            # Divider
+            st.markdown("---")
+            
+            # Additional options in columns
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                # Email stats
+                st.write("**📊 Email Statistics:**")
+                subject_len = len(generated_email.get('subject', ''))
+                body_words = len(generated_email.get('body', '').split())
+                cta_len = len(generated_email.get('cta', ''))
                 
-                if preview_option == "Interactive Preview":
-                    # Use the new Streamlit-native preview
-                    st.markdown("### 📱 How your email will look:")
-                    generator.create_streamlit_preview(generated_email, image_url)
-                    
-                elif preview_option == "HTML Code":
-                    # Show the HTML code
-                    html_email = generator.create_email_html(generated_email, image_url)
-                    st.markdown("### 💻 HTML Source Code:")
-                    st.code(html_email, language='html')
-                    st.info("💡 Copy this HTML code to use in your email marketing platform")
-                    
-                elif preview_option == "Browser Preview":
-                    # Try the HTML component with better error handling
-                    html_email = generator.create_email_html(generated_email, image_url)
-                    st.markdown("### 🌐 Browser Simulation:")
-                    
-                    try:
-                        # Create a simpler HTML version for components
-                        simple_html = f"""
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="utf-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <style>
-                                body {{ 
-                                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-                                    margin: 0; 
-                                    padding: 20px; 
-                                    background-color: #f5f5f5;
-                                }}
-                                .email-container {{ 
-                                    max-width: 600px; 
-                                    margin: 0 auto; 
-                                    background: white;
-                                    border-radius: 8px;
-                                    overflow: hidden;
-                                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                                }}
-                                .header {{ 
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    color: white; 
-                                    padding: 30px 20px; 
-                                    text-align: center; 
-                                }}
-                                .content {{ 
-                                    padding: 30px 20px; 
-                                    line-height: 1.6;
-                                }}
-                                .cta {{ 
-                                    text-align: center; 
-                                    margin: 30px 0; 
-                                }}
-                                .button {{ 
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    color: white; 
-                                    padding: 15px 30px; 
-                                    text-decoration: none; 
-                                    border-radius: 25px; 
-                                    display: inline-block;
-                                    font-weight: 600;
-                                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-                                }}
-                                img {{ 
-                                    max-width: 100%; 
-                                    height: auto; 
-                                    border-radius: 8px;
-                                    margin: 20px 0;
-                                }}
-                                .footer {{
-                                    background-color: #f8f9fa;
-                                    border-top: 1px solid #eee;
-                                    padding: 20px;
-                                    text-align: center;
-                                    font-size: 14px;
-                                    color: #666;
-                                }}
-                            </style>
-                        </head>
-                        <body>
-                            <div class="email-container">
-                                <div class="header">
-                                    <h1 style="margin: 0; font-size: 24px;">{generated_email['subject']}</h1>
-                                </div>
-                                <div class="content">
-                                    {'<div style="text-align: center;"><img src="' + image_url + '" alt="Product Image"></div>' if image_url else ''}
-                                    <div style="white-space: pre-line;">{generated_email['body']}</div>
-                                    <div class="cta">
-                                        <a href="#" class="button">{generated_email['cta']}</a>
-                                    </div>
-                                </div>
-                                <div class="footer">
-                                    <p style="margin: 0;">Best regards,<br><strong>Your Team</strong></p>
-                                </div>
-                            </div>
-                        </body>
-                        </html>
-                        """
-                        
-                        # Try to render with st.components
-                        st.components.v1.html(simple_html, height=700, scrolling=True)
-                        
-                    except Exception as e:
-                        st.error(f"Browser preview failed: {e}")
-                        st.info("💡 The browser preview feature may not work in all environments. Try 'Interactive Preview' instead!")
-                        
-                        # Show fallback info
-                        st.warning("**Fallback:** Download the HTML file and open it in your browser for the full preview.")
-                        
-                        # Show basic info
-                        st.markdown("**Email Summary:**")
-                        st.write(f"**Subject:** {generated_email['subject']}")
-                        if image_url:
-                            st.write(f"**Image:** Included")
-                        st.write(f"**Content Length:** {len(generated_email['body'])} characters")
-                        st.write(f"**Call to Action:** {generated_email['cta']}")
+                st.write(f"• Subject: {subject_len} characters")
+                st.write(f"• Body: {body_words} words")
+                st.write(f"• CTA: {cta_len} characters")
+                if image_url:
+                    st.write("• Image: ✅ Included")
+                else:
+                    st.write("• Image: ❌ None")
+            
+            with col2:
+                # Create simple HTML for download
+                simple_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{generated_email.get('subject', 'Email')}</title>
+    <style>
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6; 
+            background-color: #f5f7fa;
+        }}
+        .email-container {{
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }}
+        .header {{ 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }}
+        .content {{ 
+            padding: 30px 20px; 
+        }}
+        .cta {{ 
+            text-align: center; 
+            margin: 30px 0; 
+        }}
+        .button {{ 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 15px 30px; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }}
+        .footer {{ 
+            background: #f8f9fa; 
+            padding: 20px; 
+            text-align: center; 
+            border-top: 1px solid #e9ecef;
+            color: #6c757d; 
+            font-size: 14px; 
+        }}
+        img {{ 
+            max-width: 100%; 
+            height: auto; 
+            margin: 20px 0; 
+            border-radius: 8px;
+        }}
+        @media only screen and (max-width: 600px) {{
+            .header, .content, .footer {{ padding: 20px 15px; }}
+            .header h1 {{ font-size: 20px; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{generated_email.get('subject', 'Email Subject')}</h1>
+        </div>
+        <div class="content">
+            {f'<div style="text-align: center;"><img src="{image_url}" alt="Product Image" /></div>' if image_url else ''}
+            <div style="margin: 20px 0;">
+                {generated_email.get("body", "Email content").replace(chr(10), "<br>")}
+            </div>
+            <div class="cta">
+                <a href="#" class="button">{generated_email.get('cta', 'Learn More')}</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p style="margin: 0 0 10px 0;"><strong>Best regards,</strong><br>Your Team</p>
+            <p style="margin: 0; font-size: 12px;">
+                You received this email because you subscribed to our updates.<br>
+                <a href="#" style="color: #6c757d;">Unsubscribe</a> | 
+                <a href="#" style="color: #6c757d;">Update Preferences</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>"""
+                
+                st.download_button(
+                    label="📧 Download HTML Email",
+                    data=simple_html,
+                    file_name=f"email_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html",
+                    mime="text/html",
+                    help="Download to view in browser",
+                    use_container_width=True
+                )
+                
+                # File info
+                html_size = len(simple_html.encode('utf-8'))
+                st.write(f"**💾 File Size:** {html_size/1024:.1f} KB")
+            
+            # Show email effectiveness tips
+            st.markdown("---")
+            st.write("**💡 Email Effectiveness Analysis:**")
+            
+            # Subject line analysis
+            subject_len = len(generated_email.get('subject', ''))
+            if subject_len <= 50:
+                st.success(f"✅ Subject line length ({subject_len} chars) is optimal for mobile")
+            elif subject_len <= 70:
+                st.warning(f"⚠️ Subject line ({subject_len} chars) may be truncated on mobile")
+            else:
+                st.error(f"❌ Subject line ({subject_len} chars) is too long - will be cut off")
+                
+            # Body analysis
+            body_words = len(generated_email.get('body', '').split())
+            if 150 <= body_words <= 300:
+                st.success(f"✅ Body length ({body_words} words) is in the optimal range")
+            elif body_words < 150:
+                st.info(f"ℹ️ Body ({body_words} words) could provide more detail")
+            else:
+                st.warning(f"⚠️ Body ({body_words} words) might be too long for quick reading")
+                
+            # Visual content analysis
+            if image_url:
+                st.success("✅ Visual content included - increases engagement by 30%")
+            else:
+                st.info("ℹ️ Consider adding an image - emails with images get 42% more clicks")
+                
+            # CTA analysis
+            cta_text = generated_email.get('cta', '').lower()
+            action_words = ['get', 'start', 'try', 'download', 'buy', 'shop', 'learn', 'discover', 'join']
+            if any(word in cta_text for word in action_words):
+                st.success("✅ CTA uses action-oriented language")
+            else:
+                st.info("ℹ️ Consider using more action-oriented words in your CTA")
             
             # Action buttons
             st.subheader("📥 Download & Actions")

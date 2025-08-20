@@ -1,0 +1,208 @@
+source,source_url,subject,body,brand,category,scraped_at
+mailchimp_template,https://mailchimp.com/resources/,Exciting News: Our New Product is Here!,"Hi there!
+
+We're thrilled to announce the launch of our newest product that we've been working on for months.
+
+🎉 What's New:
+• Revolutionary features that will transform your workflow
+• Improved user experience with intuitive design  
+• Better performance and reliability
+
+As a valued subscriber, you get early access with 20% off for the first week.
+
+[Get Early Access Now]
+
+Thank you for being part of our journey!
+
+Best regards,
+The Team",Generic Template,product_announcement,2025-08-18T22:48:25.570272
+mailchimp_template,https://mailchimp.com/resources/,Important Update: New Features Available,"Hello!
+
+We've just rolled out some exciting updates to improve your experience.
+
+✨ What's Improved:
+• Faster loading times
+• New dashboard design
+• Enhanced mobile experience
+• Better security features
+
+These updates are now live for all users. No action needed on your part!
+
+Questions? Just reply to this email.
+
+Happy updating!
+Support Team",Generic Template,feature_announcement,2025-08-18T22:48:25.570337
+mailchimp_template,https://mailchimp.com/resources/,Join Us: Exciting Company News!,"Dear Valued Customer,
+
+We have some fantastic news to share with our community!
+
+🌟 Big Announcement:
+We've just secured Series B funding to accelerate our growth and bring you even better products and services.
+
+What this means for you:
+→ Faster product development
+→ Improved customer support
+→ New features coming soon
+→ Continued commitment to excellence
+
+Thank you for being part of our success story. More exciting updates coming soon!
+
+Cheers,
+Leadership Team
+
+P.S. Keep an eye on your inbox for exclusive early access to our upcoming features.",Generic Template,company_announcement,2025-08-18T22:48:25.570355
+design_template,curated_template,🚀 Blast Off: Our New App is Live!,"Hey [Name]!
+
+The wait is over! 🎉
+
+After months of development, we're excited to announce that our new mobile app is now available for download.
+
+🔥 Key Features:
+• Lightning-fast performance
+• Sleek, intuitive design  
+• Offline mode capability
+• Seamless sync across devices
+
+Ready to experience the future? Download now:
+
+📱 [Download for iOS]
+🤖 [Download for Android]
+
+Early bird special: Use code LAUNCH20 for 20% off premium features (limited time!)
+
+Questions? Our support team is standing by.
+
+To your success,
+[Your Name] & the [Company] Team
+
+P.S. Share this with friends and get a month free when they sign up!",Tech Startup,app_launch,2025-08-18T22:48:25.570378
+design_template,curated_template,Breaking: Major Partnership Announcement,"Dear [Name],
+
+Today marks a milestone in our company's journey.
+
+🤝 BIG NEWS: We've partnered with [Major Company] to bring you unprecedented value and innovation.
+
+What This Partnership Brings:
+✓ Expanded product offerings
+✓ Enhanced service capabilities  
+✓ Broader global reach
+✓ Improved customer experience
+
+This collaboration allows us to serve you better while maintaining our commitment to quality and innovation.
+
+Want the full story? Read our press release: [Link]
+
+We're just getting started. Exciting times ahead!
+
+Best,
+[CEO Name]
+[Company Name]
+
+---
+This partnership is about YOU - our valued customer. Expect great things.",Enterprise,partnership_announcement,2025-08-18T22:48:25.570390
+design_template,curated_template,You're Invited: Exclusive Event Announcement,"Hi [Name]!
+
+You're invited to something special! 🎊
+
+We're hosting an exclusive virtual event and you're on the VIP list.
+
+📅 SAVE THE DATE:
+Event: Future of [Industry] Summit
+Date: [Date]  
+Time: [Time] PST
+Where: Online (Link will be sent)
+
+🌟 What to Expect:
+• Keynote from industry leaders
+• Interactive workshops
+• Networking opportunities
+• Exclusive product previews
+• Q&A sessions
+
+This is a limited-capacity event reserved for our most engaged community members.
+
+[RESERVE MY SPOT] - Free for you!
+
+Can't wait to see you there!
+
+Warm regards,
+Events Team
+
+P.S. Spots are filling up fast. Secure yours today!",Professional Services,event_announcement,2025-08-18T22:48:25.570401
+design_template,curated_template,Celebrating You: Community Milestone Reached!,"Amazing news, [Name]!
+
+🎉 WE DID IT TOGETHER! 🎉
+
+Our community has just reached [Number] members, and it's all thanks to incredible people like you.
+
+When we started this journey, we dreamed of building something special. Today, that dream is our reality:
+
+📊 By the Numbers:
+• [Number]+ active community members
+• [Number] success stories shared
+• [Number] connections made
+• [Number] goals achieved together
+
+To celebrate this milestone, we're giving back:
+
+🎁 COMMUNITY CELEBRATION PERKS:
+→ Free premium access for the next month
+→ Exclusive community-only resources
+→ Special ""Founding Member"" badge
+→ Early access to all new features
+
+[CLAIM YOUR CELEBRATION PERKS]
+
+Thank you for making our community extraordinary. Here's to the next milestone!
+
+With gratitude,
+[Your Name] & Community Team
+
+#CommunityStrong #TogetherWeGrow",Community Platform,milestone_announcement,2025-08-18T22:48:25.570411
+hubspot_style,hubspot_inspired,New Feature Alert: [Feature Name] is Here,"Hi [First Name],
+
+Great news! We've just launched [Feature Name], and it's going to make your [workflow/process] so much easier.
+
+Here's what's new:
+
+🔧 [Feature Name] allows you to:
+• [Benefit 1]
+• [Benefit 2] 
+• [Benefit 3]
+
+→ [Call-to-Action Button: Try It Now]
+
+This feature was built based on your feedback, so we can't wait to hear what you think!
+
+Need help getting started? Check out our quick tutorial: [Link]
+
+Happy [day of week]!
+[Your Name]
+
+P.S. Have questions? Just reply to this email - we read every message.",SaaS Platform,feature_launch,2025-08-18T22:48:25.570430
+hubspot_style,hubspot_inspired,Big Changes Coming: Here's What You Need to Know,"Hello [Name],
+
+We're making some important changes that will improve your experience with us.
+
+📋 What's Changing:
+Starting [Date], we're introducing:
+• Enhanced security measures
+• Streamlined user interface
+• Improved performance
+• New collaboration tools
+
+📋 What This Means for You:
+✓ Better protection of your data
+✓ Faster, more intuitive experience
+✓ New ways to work with your team
+✓ Same great service you love
+
+📋 What You Need to Do:
+Nothing! These improvements happen automatically.
+
+We'll send another email before the changes go live with any important details.
+
+Questions? Our support team is here: [Support Link]
+
+Thanks for being with us!
+[Team Name]",Business Software,system_update,2025-08-18T22:48:25.570440

@@ -1,0 +1,83 @@
+[
+  {
+    "source": "mailchimp_template",
+    "source_url": "https://mailchimp.com/resources/",
+    "subject": "Exciting News: Our New Product is Here!",
+    "body": "Hi there!\n\nWe're thrilled to announce the launch of our newest product that we've been working on for months.\n\n🎉 What's New:\n• Revolutionary features that will transform your workflow\n• Improved user experience with intuitive design  \n• Better performance and reliability\n\nAs a valued subscriber, you get early access with 20% off for the first week.\n\n[Get Early Access Now]\n\nThank you for being part of our journey!\n\nBest regards,\nThe Team",
+    "brand": "Generic Template",
+    "category": "product_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570272"
+  },
+  {
+    "source": "mailchimp_template",
+    "source_url": "https://mailchimp.com/resources/",
+    "subject": "Important Update: New Features Available",
+    "body": "Hello!\n\nWe've just rolled out some exciting updates to improve your experience.\n\n✨ What's Improved:\n• Faster loading times\n• New dashboard design\n• Enhanced mobile experience\n• Better security features\n\nThese updates are now live for all users. No action needed on your part!\n\nQuestions? Just reply to this email.\n\nHappy updating!\nSupport Team",
+    "brand": "Generic Template",
+    "category": "feature_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570337"
+  },
+  {
+    "source": "mailchimp_template",
+    "source_url": "https://mailchimp.com/resources/",
+    "subject": "Join Us: Exciting Company News!",
+    "body": "Dear Valued Customer,\n\nWe have some fantastic news to share with our community!\n\n🌟 Big Announcement:\nWe've just secured Series B funding to accelerate our growth and bring you even better products and services.\n\nWhat this means for you:\n→ Faster product development\n→ Improved customer support\n→ New features coming soon\n→ Continued commitment to excellence\n\nThank you for being part of our success story. More exciting updates coming soon!\n\nCheers,\nLeadership Team\n\nP.S. Keep an eye on your inbox for exclusive early access to our upcoming features.",
+    "brand": "Generic Template",
+    "category": "company_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570355"
+  },
+  {
+    "source": "design_template",
+    "source_url": "curated_template",
+    "subject": "🚀 Blast Off: Our New App is Live!",
+    "body": "Hey [Name]!\n\nThe wait is over! 🎉\n\nAfter months of development, we're excited to announce that our new mobile app is now available for download.\n\n🔥 Key Features:\n• Lightning-fast performance\n• Sleek, intuitive design  \n• Offline mode capability\n• Seamless sync across devices\n\nReady to experience the future? Download now:\n\n📱 [Download for iOS]\n🤖 [Download for Android]\n\nEarly bird special: Use code LAUNCH20 for 20% off premium features (limited time!)\n\nQuestions? Our support team is standing by.\n\nTo your success,\n[Your Name] & the [Company] Team\n\nP.S. Share this with friends and get a month free when they sign up!",
+    "brand": "Tech Startup",
+    "category": "app_launch",
+    "scraped_at": "2025-08-18T22:48:25.570378"
+  },
+  {
+    "source": "design_template",
+    "source_url": "curated_template",
+    "subject": "Breaking: Major Partnership Announcement",
+    "body": "Dear [Name],\n\nToday marks a milestone in our company's journey.\n\n🤝 BIG NEWS: We've partnered with [Major Company] to bring you unprecedented value and innovation.\n\nWhat This Partnership Brings:\n✓ Expanded product offerings\n✓ Enhanced service capabilities  \n✓ Broader global reach\n✓ Improved customer experience\n\nThis collaboration allows us to serve you better while maintaining our commitment to quality and innovation.\n\nWant the full story? Read our press release: [Link]\n\nWe're just getting started. Exciting times ahead!\n\nBest,\n[CEO Name]\n[Company Name]\n\n---\nThis partnership is about YOU - our valued customer. Expect great things.",
+    "brand": "Enterprise",
+    "category": "partnership_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570390"
+  },
+  {
+    "source": "design_template",
+    "source_url": "curated_template",
+    "subject": "You're Invited: Exclusive Event Announcement",
+    "body": "Hi [Name]!\n\nYou're invited to something special! 🎊\n\nWe're hosting an exclusive virtual event and you're on the VIP list.\n\n📅 SAVE THE DATE:\nEvent: Future of [Industry] Summit\nDate: [Date]  \nTime: [Time] PST\nWhere: Online (Link will be sent)\n\n🌟 What to Expect:\n• Keynote from industry leaders\n• Interactive workshops\n• Networking opportunities\n• Exclusive product previews\n• Q&A sessions\n\nThis is a limited-capacity event reserved for our most engaged community members.\n\n[RESERVE MY SPOT] - Free for you!\n\nCan't wait to see you there!\n\nWarm regards,\nEvents Team\n\nP.S. Spots are filling up fast. Secure yours today!",
+    "brand": "Professional Services",
+    "category": "event_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570401"
+  },
+  {
+    "source": "design_template",
+    "source_url": "curated_template",
+    "subject": "Celebrating You: Community Milestone Reached!",
+    "body": "Amazing news, [Name]!\n\n🎉 WE DID IT TOGETHER! 🎉\n\nOur community has just reached [Number] members, and it's all thanks to incredible people like you.\n\nWhen we started this journey, we dreamed of building something special. Today, that dream is our reality:\n\n📊 By the Numbers:\n• [Number]+ active community members\n• [Number] success stories shared\n• [Number] connections made\n• [Number] goals achieved together\n\nTo celebrate this milestone, we're giving back:\n\n🎁 COMMUNITY CELEBRATION PERKS:\n→ Free premium access for the next month\n→ Exclusive community-only resources\n→ Special \"Founding Member\" badge\n→ Early access to all new features\n\n[CLAIM YOUR CELEBRATION PERKS]\n\nThank you for making our community extraordinary. Here's to the next milestone!\n\nWith gratitude,\n[Your Name] & Community Team\n\n#CommunityStrong #TogetherWeGrow",
+    "brand": "Community Platform",
+    "category": "milestone_announcement",
+    "scraped_at": "2025-08-18T22:48:25.570411"
+  },
+  {
+    "source": "hubspot_style",
+    "source_url": "hubspot_inspired",
+    "subject": "New Feature Alert: [Feature Name] is Here",
+    "body": "Hi [First Name],\n\nGreat news! We've just launched [Feature Name], and it's going to make your [workflow/process] so much easier.\n\nHere's what's new:\n\n🔧 [Feature Name] allows you to:\n• [Benefit 1]\n• [Benefit 2] \n• [Benefit 3]\n\n→ [Call-to-Action Button: Try It Now]\n\nThis feature was built based on your feedback, so we can't wait to hear what you think!\n\nNeed help getting started? Check out our quick tutorial: [Link]\n\nHappy [day of week]!\n[Your Name]\n\nP.S. Have questions? Just reply to this email - we read every message.",
+    "brand": "SaaS Platform",
+    "category": "feature_launch",
+    "scraped_at": "2025-08-18T22:48:25.570430"
+  },
+  {
+    "source": "hubspot_style",
+    "source_url": "hubspot_inspired",
+    "subject": "Big Changes Coming: Here's What You Need to Know",
+    "body": "Hello [Name],\n\nWe're making some important changes that will improve your experience with us.\n\n📋 What's Changing:\nStarting [Date], we're introducing:\n• Enhanced security measures\n• Streamlined user interface\n• Improved performance\n• New collaboration tools\n\n📋 What This Means for You:\n✓ Better protection of your data\n✓ Faster, more intuitive experience\n✓ New ways to work with your team\n✓ Same great service you love\n\n📋 What You Need to Do:\nNothing! These improvements happen automatically.\n\nWe'll send another email before the changes go live with any important details.\n\nQuestions? Our support team is here: [Support Link]\n\nThanks for being with us!\n[Team Name]",
+    "brand": "Business Software",
+    "category": "system_update",
+    "scraped_at": "2025-08-18T22:48:25.570440"
+  }
+]

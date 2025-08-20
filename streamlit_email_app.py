@@ -139,7 +139,175 @@ class EmailGenerator:
             st.error(f"Error extracting images: {e}")
             return []
     
-    def generate_product_image(self, product_info: Dict) -> Optional[str]:
+    def edit_image_with_ai(self, image_url: str, modification_prompt: str) -> Optional[str]:
+        """Edit an existing image using DALL-E image editing capabilities"""
+        try:
+            if OPENAI_API_KEY == "your_openai_key_here":
+                st.error("OpenAI API key not configured for image editing.")
+                return None
+            
+            import requests
+            from PIL import Image, ImageDraw
+            import base64
+            from io import BytesIO
+            
+            # Download the original image
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+                response = requests.get(image_url, headers=headers, timeout=30)
+                response.raise_for_status()
+                
+                # Open and process the image
+                original_image = Image.open(BytesIO(response.content))
+                
+                # Convert to RGBA if not already
+                if original_image.mode != 'RGBA':
+                    original_image = original_image.convert('RGBA')
+                
+                # Resize to DALL-E 2 requirements (must be square and specific sizes)
+                target_size = (1024, 1024)
+                
+                # Create a square canvas and paste the image in the center
+                square_image = Image.new('RGBA', target_size, (255, 255, 255, 0))
+                
+                # Calculate position to center the image
+                img_width, img_height = original_image.size
+                aspect_ratio = img_width / img_height
+                
+                if aspect_ratio > 1:  # Wider than tall
+                    new_width = min(800, target_size[0])  # Leave room for background editing
+                    new_height = int(new_width / aspect_ratio)
+                else:  # Taller than wide or square
+                    new_height = min(800, target_size[1])  # Leave room for background editing
+                    new_width = int(new_height * aspect_ratio)
+                
+                # Resize the original image
+                resized_image = original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                
+                # Calculate position to center
+                x_offset = (target_size[0] - new_width) // 2
+                y_offset = (target_size[1] - new_height) // 2
+                
+                # Paste the image onto the square canvas
+                square_image.paste(resized_image, (x_offset, y_offset), resized_image)
+                
+                # Create a mask that allows editing around the product but preserves the center
+                mask = Image.new('RGBA', target_size, (0, 0, 0, 255))  # Black = don't edit
+                mask_draw = ImageDraw.Draw(mask)
+                
+                # Create a transparent area around the product (white = edit this area)
+                # Leave the center product area black (preserved)
+                product_margin = 50
+                mask_draw.rectangle([
+                    0, 0, target_size[0], y_offset + product_margin
+                ], fill=(255, 255, 255, 255))  # Top area
+                
+                mask_draw.rectangle([
+                    0, y_offset + new_height - product_margin, target_size[0], target_size[1]
+                ], fill=(255, 255, 255, 255))  # Bottom area
+                
+                mask_draw.rectangle([
+                    0, y_offset + product_margin, x_offset + product_margin, y_offset + new_height - product_margin
+                ], fill=(255, 255, 255, 255))  # Left area
+                
+                mask_draw.rectangle([
+                    x_offset + new_width - product_margin, y_offset + product_margin, target_size[0], y_offset + new_height - product_margin
+                ], fill=(255, 255, 255, 255))  # Right area
+                
+                # Convert images to PNG bytes for API
+                img_buffer = BytesIO()
+                square_image.convert('RGB').save(img_buffer, format='PNG')
+                img_bytes = img_buffer.getvalue()
+                
+                mask_buffer = BytesIO()
+                mask.convert('RGB').save(mask_buffer, format='PNG')
+                mask_bytes = mask_buffer.getvalue()
+                
+                # Create a more specific prompt that mentions preserving the product
+                enhanced_prompt = f"Keep the main product/object in the center exactly as it is, but {modification_prompt.lower()}. High quality, professional photography, commercial grade."
+                
+                st.info(f"🎨 Enhancing image: {enhanced_prompt[:80]}...")
+                
+                # Use DALL-E 2 image editing
+                try:
+                    response = openai.images.edit(
+                        image=img_bytes,
+                        mask=mask_bytes,
+                        prompt=enhanced_prompt,
+                        n=1,
+                        size="1024x1024"
+                    )
+                    
+                    edited_image_url = response.data[0].url
+                    st.success("✅ Image successfully enhanced using AI editing!")
+                    return edited_image_url
+                    
+                except Exception as edit_error:
+                    st.warning(f"⚠️ DALL-E image editing failed: {edit_error}")
+                    
+                    # Fallback 1: Try image variation with DALL-E 2
+                    try:
+                        st.info("🔄 Trying image variation approach...")
+                        
+                        response = openai.images.create_variation(
+                            image=img_bytes,
+                            n=1,
+                            size="1024x1024"
+                        )
+                        
+                        variation_url = response.data[0].url
+                        st.info("✅ Created a variation of your image (may not include modifications)")
+                        return variation_url
+                        
+                    except Exception as variation_error:
+                        st.warning(f"⚠️ Image variation also failed: {variation_error}")
+                        
+                        # Fallback 2: Describe what we see and recreate with modifications
+                        return self.recreate_image_with_description(image_url, modification_prompt)
+                
+            except Exception as download_error:
+                st.error(f"Failed to process original image: {download_error}")
+                return None
+                
+        except Exception as e:
+            st.error(f"Error in AI image editing: {str(e)}")
+            return None
+    
+    def recreate_image_with_description(self, image_url: str, modification_prompt: str) -> Optional[str]:
+        """Fallback method: Analyze the image and recreate it with modifications"""
+        try:
+            st.info("🔄 Analyzing original image and recreating with modifications...")
+            
+            # Try to analyze what's in the image (this is a simplified approach)
+            # In a real implementation, you might use GPT-4 Vision to describe the image
+            
+            # For now, create a prompt that tries to preserve the product type
+            recreation_prompt = f"""Professional product photography featuring the same type of product from the original image, but {modification_prompt.lower()}. 
+            
+            Maintain the same product style, colors, and general appearance as the original, but enhance the scene with the requested modifications. 
+            High quality, commercial grade, professional lighting, detailed, realistic."""
+            
+            try:
+                response = openai.images.generate(
+                    model="dall-e-3",
+                    prompt=recreation_prompt,
+                    size="1024x1024",
+                    quality="standard",
+                    n=1
+                )
+                
+                st.info("✅ Recreated image with modifications using DALL-E 3")
+                return response.data[0].url
+                
+            except Exception as recreation_error:
+                st.error(f"Image recreation failed: {recreation_error}")
+                return None
+                
+        except Exception as e:
+            st.error(f"Error in image recreation: {str(e)}")
+            return None
         """Generate a custom product image using DALL-E"""
         try:
             if OPENAI_API_KEY == "your_openai_key_here":
@@ -1282,6 +1450,10 @@ def main():
                 st.session_state.generated_image_url = None
             if 'website_images' not in st.session_state:
                 st.session_state.website_images = []
+            if 'base_image_for_editing' not in st.session_state:
+                st.session_state.base_image_for_editing = None
+            if 'edited_image_url' not in st.session_state:
+                st.session_state.edited_image_url = None
             
             # Handle different image options
             if image_option == "Generate AI Image":
@@ -1354,15 +1526,146 @@ def main():
                                     st.image(img_url, caption=f"Image {i+1}", width=100)
                                     if st.button(f"Select", key=f"select_website_img_{i}"):
                                         st.session_state.selected_image_url = img_url
+                                        st.session_state.base_image_for_editing = img_url
                                         st.success(f"✅ Selected Image {i+1}")
                                         st.rerun()
                                 except Exception as e:
                                     st.error(f"Failed to load image {i+1}")
                         
-                        # Show selected image
+                        # Show selected image and AI editing options
                         if st.session_state.selected_image_url in st.session_state.website_images:
                             st.write("**Selected Image:**")
                             st.image(st.session_state.selected_image_url, width=200)
+                            
+                            # AI Image Editing Section
+                            st.markdown("---")
+                            st.write("**🎨 AI Image Enhancement (Optional):**")
+                            st.info("Transform your selected image with AI! Add backgrounds, objects, or modify the scene.")
+                            
+                            # Initialize session state for edited image
+                            if 'edited_image_url' not in st.session_state:
+                                st.session_state.edited_image_url = None
+                            
+                            # Image editing options
+                            edit_type = st.selectbox(
+                                "Choose editing style:",
+                                [
+                                    "No Editing - Use Original",
+                                    "Add Background Scene",
+                                    "Add Objects & Props", 
+                                    "Change Environment",
+                                    "Custom Modification"
+                                ],
+                                help="Select how you want to modify the image"
+                            )
+                            
+                            if edit_type != "No Editing - Use Original":
+                                # Preset prompts for different editing types
+                                if edit_type == "Add Background Scene":
+                                    preset_prompts = [
+                                        "Place this product on a beautiful beach with white sand and crystal blue water",
+                                        "Set this product in a modern luxury living room with elegant furniture",
+                                        "Position this product in a professional office environment",
+                                        "Place this product in a cozy home kitchen setting",
+                                        "Set this product outdoors in a garden with green plants and flowers"
+                                    ]
+                                    selected_preset = st.selectbox("Choose background:", preset_prompts)
+                                    modification_prompt = selected_preset
+                                    
+                                elif edit_type == "Add Objects & Props":
+                                    preset_prompts = [
+                                        "Add a beach cooler, beach chair, and sunglasses around this product",
+                                        "Add wine glasses, cheese, and a wooden table around this product",
+                                        "Add gift wrapping, ribbons, and celebration decorations around this product",
+                                        "Add laptop, coffee cup, and modern workspace items around this product",
+                                        "Add sports equipment and outdoor gear around this product"
+                                    ]
+                                    selected_preset = st.selectbox("Choose props:", preset_prompts)
+                                    modification_prompt = selected_preset
+                                    
+                                elif edit_type == "Change Environment":
+                                    preset_prompts = [
+                                        "Transform the setting to a tropical vacation paradise",
+                                        "Change the environment to a sophisticated wine cellar",
+                                        "Transform to a festive party celebration scene",
+                                        "Change to a minimalist modern studio setting",
+                                        "Transform to a rustic countryside picnic setting"
+                                    ]
+                                    selected_preset = st.selectbox("Choose environment:", preset_prompts)
+                                    modification_prompt = selected_preset
+                                    
+                                else:  # Custom Modification
+                                    modification_prompt = st.text_area(
+                                        "Describe your custom modification:",
+                                        placeholder="e.g., Add a beach background with palm trees, a cooler full of ice, beach chairs, and a sunset sky. Make it look like a perfect vacation scene.",
+                                        height=100,
+                                        help="Be specific about what you want to add or change in the image"
+                                    )
+                                
+                                # Additional customization options
+                                with st.expander("🎛️ Advanced Options"):
+                                    style_modifier = st.selectbox(
+                                        "Image style:",
+                                        ["Photorealistic", "Artistic", "Vintage", "Modern", "Dramatic"]
+                                    )
+                                    
+                                    lighting = st.selectbox(
+                                        "Lighting:",
+                                        ["Natural lighting", "Golden hour", "Bright daylight", "Soft lighting", "Dramatic lighting"]
+                                    )
+                                    
+                                    quality = st.selectbox(
+                                        "Quality:",
+                                        ["High quality", "Professional photography", "Commercial grade", "Ultra realistic"]
+                                    )
+                                
+                                # Combine all prompts
+                                full_prompt = f"{modification_prompt}, {style_modifier.lower()}, {lighting.lower()}, {quality.lower()}"
+                                
+                                # Show the prompt that will be used
+                                with st.expander("🔍 View AI Prompt", expanded=False):
+                                    st.code(full_prompt)
+                                
+                                # Edit image button
+                                col1, col2 = st.columns(2)
+                                with col1:
+                                    if st.button("🎨 Transform Image with AI", type="secondary"):
+                                        if modification_prompt.strip():
+                                            if OPENAI_API_KEY == "your_openai_key_here":
+                                                st.error("❌ OpenAI API key required for image editing")
+                                            else:
+                                                with st.spinner("🎨 AI is transforming your image... This may take 30-60 seconds"):
+                                                    edited_url = generator.edit_image_with_ai(
+                                                        st.session_state.selected_image_url, 
+                                                        full_prompt
+                                                    )
+                                                    if edited_url:
+                                                        st.session_state.edited_image_url = edited_url
+                                                        st.session_state.selected_image_url = edited_url  # Use edited version
+                                                        st.success("✅ Image transformed successfully!")
+                                                        st.rerun()
+                                                    else:
+                                                        st.error("❌ Image transformation failed")
+                                        else:
+                                            st.warning("⚠️ Please describe how you want to modify the image")
+                                
+                                with col2:
+                                    if st.session_state.edited_image_url:
+                                        if st.button("🔄 Use Original Image"):
+                                            st.session_state.selected_image_url = st.session_state.base_image_for_editing
+                                            st.session_state.edited_image_url = None
+                                            st.rerun()
+                                
+                                # Show edited image if available
+                                if st.session_state.edited_image_url:
+                                    st.write("**🎨 AI-Enhanced Image:**")
+                                    col1, col2 = st.columns(2)
+                                    with col1:
+                                        st.write("*Original:*")
+                                        st.image(st.session_state.base_image_for_editing, width=150)
+                                    with col2:
+                                        st.write("*AI-Enhanced:*")
+                                        st.image(st.session_state.edited_image_url, width=150)
                             
                 else:
                     st.info("💡 Please enter a website URL first in the Website Analysis section")
